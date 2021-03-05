@@ -160,23 +160,6 @@ plt.show()
 '''
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 '''
 def my_plotter(ax, data1, data2, param_dict):
     """
