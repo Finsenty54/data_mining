@@ -4,7 +4,7 @@ import numpy as np
 import cv2 as cv
 from skimage.metrics import structural_similarity
 import matplotlib.pyplot as plt
-
+import time
 
 
 # 图片路径
@@ -25,7 +25,7 @@ def psnr(imag1, imag2):
 
 def ssim(imag1, imag2):
     (grayScore, diff) = structural_similarity(imag1, imag2, full=True)
-    #diff = (diff * 255).astype("uint8")
+    # diff = (diff * 255).astype("uint8")
     return grayScore
 
 
@@ -54,7 +54,9 @@ def generateWaterMark(matrix_shape):
 
     # 生成嵌入信息
     bit_count = matrix_shape[0] * matrix_shape[1]
-    Byte_count = bit_count // 8
+    Byte_count = bit_count #// 8
+
+    # random.seed(time())
     # 随机选择一个大小
     rand_string_count = random.randint(1, Byte_count)
 
@@ -63,18 +65,16 @@ def generateWaterMark(matrix_shape):
     # 嵌入信息
     chars = ''.join(charlist)
 
-    # 得到嵌入信息的LSB位 保存在一个string里
-    stram = ''
+    temp_list = []
     for char in chars:
-        char_bin = '0' + bin(ord(char))[2:]
-        stram += char_bin
+        temp_list.append(getLastBin(ord(char)))
 
     # 写如lsb到矩阵
-    count = 0
+    count=0
     for i in range(matrix_shape[0]):
         for j in range(matrix_shape[1]):
-            if count <= len(stram) - 1:
-                string_lsb_matrix[i][j] = stram[count]
+            if count <= len(temp_list) - 1:
+                string_lsb_matrix[i][j]=temp_list[count]
                 count += 1
             else:
                 break
@@ -90,25 +90,25 @@ def info2matrix(emb_string, original_img):
     将文本信息转换为LSB嵌入矩阵
     '''
 
-    string_lsb_matrix = np.zeros()
+    string_lsb_matrix=np.zeros()
 
-    string_len = len(emb_string)
+    string_len=len(emb_string)
     if string_len > (original_img.shape[0] * original_img.shape[1] // 8):
         print("嵌入信息过长，裁剪")
-        emb_string = emb_string[0:(
+        emb_string=emb_string[0:(
             original_img.shape[0] * original_img.shape[1] // 8)]
 
-    stram = ''
+    stram=''
     for char in chars:
-        char_bin = '0' + bin(ord(char))[2:]
+        char_bin='0' + bin(ord(char))[2:]
         stram += char_bin
 
     # 写入lsb到矩阵
-    count = 0
+    count=0
     for i in range(original_img.shape[0]):
         for j in range(original_img.shape[1]):
             if count <= len(stram) - 1:
-                string_lsb_matrix[i][j] = stram[count]
+                string_lsb_matrix[i][j]=stram[count]
                 count += 1
             else:
                 break
@@ -118,47 +118,48 @@ def info2matrix(emb_string, original_img):
 
 def getMatrixDetail(matrix):
     # 得到矩阵的均值和方差并返回
-    arry = np.array(matrix)
-    mean = np.mean(arry)
-    variance = np.mean((arry - mean)**2)
+    arry=np.array(matrix)
+    mean=np.mean(arry)
+    variance=np.mean((arry - mean)**2)
     return mean, variance
 
 
 def encodeLSB(embedding_matrix, original_matrix):
     # 将嵌入LSB矩阵 embedding_matrix 嵌入到 原图矩阵original_matrix中去
-    ori_x = original_matrix.shape[0]
-    embe_x = embedding_matrix.shape[0]
-    ori_y = original_matrix.shape[1]
-    embe_y = embedding_matrix.shape[1]
+    ori_x=original_matrix.shape[0]
+    embe_x=embedding_matrix.shape[0]
+    ori_y=original_matrix.shape[1]
+    embe_y=embedding_matrix.shape[1]
     # 考虑边界问题 大了就裁剪
     if(ori_x < embe_x or ori_y < embe_y):
         print('嵌入信息太大，将裁剪信息！/n')
-        embedding_matrix = embedding_matrix[0:ori_x, 0:ori_y]
+        embedding_matrix=embedding_matrix[0:ori_x, 0:ori_y]
         print("裁剪后的信息大小为{}".format(embedding_matrix.shape))
 
     # 分为 二种情况  m是嵌入比特
     # 1. x = x + m       x = 0 (mod 2) 偶数
     # 2  x = x+m-1       x = 1 (mode 2)  基数数
     # 加入水印
-    ans_arry = np.zeros(original_matrix.shape).astype(original_matrix.dtype)
-    #最小值从0开始
+    ans_arry=np.zeros(original_matrix.shape).astype(original_matrix.dtype)
+    # 最小值从0开始
     for row in range(ori_x):
         for col in range(ori_y):
             if (original_matrix[row][col]) % 2 == 0:
-                ans_arry[row][col] = original_matrix[row][col] + embedding_matrix[row][col]
+                ans_arry[row][col]=original_matrix[row][col] + \
+                    embedding_matrix[row][col]
             else:
-                ans_arry[row][col] = original_matrix[row][col] + \
+                ans_arry[row][col]=original_matrix[row][col] + \
                     embedding_matrix[row][col] - 1
 
     return ans_arry
 
 
-def show(ori_img, LSB_img,nosie):
+def show(ori_img, LSB_img, nosie):
     # 图片展示
-    plt.rcParams["font.family"] = "SimHei"  # 中文字体
-    plt.rcParams["axes.unicode_minus"] = False  # 负号因为中文显示出了错，调整负号显示
+    plt.rcParams["font.family"]="SimHei"  # 中文字体
+    plt.rcParams["axes.unicode_minus"]=False  # 负号因为中文显示出了错，调整负号显示
 
-    fig, ax = plt.subplots(1, 2, figsize=(10, 6))
+    fig, ax=plt.subplots(1, 2, figsize=(10, 6))
 
     plt.subplot(1, 3, 1)
     plt.imshow(ori_img, cmap="gray")
@@ -181,17 +182,17 @@ def show(ori_img, LSB_img,nosie):
 
 if __name__ == "__main__":
     # 获得灰度图片矩阵
-    img_arry = cv.imread(IMAGE, cv.IMREAD_GRAYSCALE)
+    img_arry=cv.imread(IMAGE, cv.IMREAD_GRAYSCALE)
     # 抽取出最低有效位平面
-    original_lsbMatrix = getLSBMatrix(img_arry)
+    original_lsbMatrix=getLSBMatrix(img_arry)
 
     # 均值 和方差
-    mean, variance = getMatrixDetail(original_lsbMatrix)
+    mean, variance=getMatrixDetail(original_lsbMatrix)
 
-    embedding_lsbMatrix, chars = generateWaterMark(img_arry.shape)
+    embedding_lsbMatrix, chars=generateWaterMark(img_arry.shape)
 
 
-    encode_LSB_img = encodeLSB(
+    encode_LSB_img=encodeLSB(
         embedding_lsbMatrix,
         img_arry)
 
@@ -204,4 +205,4 @@ if __name__ == "__main__":
     # cv.destroyAllWindows()
     #
     print(chars)
-    show(img_arry, encode_LSB_img,embedding_lsbMatrix)
+    show(img_arry, encode_LSB_img, embedding_lsbMatrix)

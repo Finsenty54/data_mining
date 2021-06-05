@@ -96,10 +96,10 @@ def encodeLSBM(embedding_matrix, original_matrix):
     # 加入水印
     ans_arry = np.zeros(original_matrix.shape).astype(original_matrix.dtype)
 
-    for row in range(ori_x):
-        for col in range(ori_y):
-            if original_matrix[row][col] % 2 != embedding_matrix[row][col]:
-                ans_arry[row][col] = (original_matrix[row][col] + random.choice((1,-1)))% 256
+    for row in range(embe_x):
+        for col in range(embe_y):
+            if (original_matrix[row][col] % 2) != embedding_matrix[row][col]:
+                ans_arry[row][col] = (original_matrix[row][col] + random.choice((1.,-1.)))% 256
 
     return ans_arry
 

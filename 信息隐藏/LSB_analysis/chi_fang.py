@@ -2,7 +2,7 @@ from collections import Counter
 import itertools
 import sys
 # 添加路径
-sys.path.append('/home/zentreisender/Documents/imformation/信息隐藏')
+sys.path.append('/home/zentreisender/Documents/data_mining/信息隐藏')
 from LSB.jsteg import *
 from LSB.lsbSub import *
 
@@ -27,31 +27,27 @@ def chi_fang(ima):
 
     # 计算相临值的卡方差
     sum = 0
-    for i in range(1, 256, 2):
+    for i in range(0, 128):
         # 计算卡方差总和
-        sum = pow(result[i]-result[i-1], 2)+sum
+        sum = pow(result[2*i]-result[2*i+1], 2)+sum
 
     return sum, result
 
 
 if __name__ == "__main__":
     # 图片路径
-    IMAGE = r'../img/ztfn.jpg'
+    IMAGE = r'../img/lena256.bmp'
     # 获得灰度图片矩阵
     img_arry = cv.imread(IMAGE, cv.IMREAD_GRAYSCALE)
 
     print(img_arry.dtype.name)
-    # 抽取出最低有效位平面
-    original_lsbMatrix = getLSBMatrix(img_arry)
-
-    # 均值 和方差
-    #mean, variance = getMatrixDetail(original_lsbMatrix)
 
     embedding_lsbMatrix1, chars1 = generateWaterMark(img_arry.shape)
     embedding_lsbMatrix2, chars2 = generateWaterMark(img_arry.shape)
 
-    #print("嵌入量：%d" %(embedding_lsbMatrix.size))
-    # print("嵌入值："+chars)
+    # 嵌入随机生成的数据
+    # embedding_lsbMatrix1=np.random.randint(0,2,img_arry.shape)
+
     encode_LSB_img1 = encodeLSB(
         embedding_lsbMatrix1,
         img_arry)
@@ -67,16 +63,6 @@ if __name__ == "__main__":
 
     # 打印原图像卡方差，嵌入后图像卡方差
     print("chi_unencode: %d , chi_encode: %d" % (chi_unencode, chi_encode1))
-    #print('峰值信噪比（PSNR）为：', psnr(encode_LSB_img, img_arry))
-    #print('结构相似性（SSIM）为：', ssim(encode_LSB_img, img_arry))
-    #
-    # cv.imshow("imageLSB", encode_LSB_img)
-    # cv.imshow("image", img_arry)
-    # cv.waitKey(111110)
-    # cv.destroyAllWindows()
-    #
-    # print(chars)
-    #fig, ax = plt.subplots(1, 2, figsize=(10, 6))
     plt.figure()
 
     plt.subplot(2, 3, 1)

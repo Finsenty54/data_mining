@@ -2,7 +2,7 @@ from collections import Counter
 import itertools
 # 添加路径
 import sys
-sys.path.append('/home/zentreisender/Documents/imformation/信息隐藏')
+sys.path.append('/home/zentreisender/Documents/data_mining/信息隐藏')
 from LSB.lsbSub import *
 
 
@@ -46,22 +46,19 @@ if __name__ == "__main__":
     IMAGE = r'../img/ztfn.jpg'
     # 获得灰度图片矩阵
     img_arry = cv.imread(IMAGE, cv.IMREAD_GRAYSCALE)
-    # 抽取出最低有效位平面
-    original_lsbMatrix = getLSBMatrix(img_arry)
 
-    # 均值 和方差
-    #mean, variance = getMatrixDetail(original_lsbMatrix)
     count_oddo, count_eneno = odd_even(img_arry)
     p = []
     p.append(count_oddo/count_eneno)
     img = []
     img.append("origin")
     for i in range(6):
-
+        # 嵌入随机生成的数据
+        # embedding_lsbMatrix=np.random.randint(0,2,img_arry.shape)
         embedding_lsbMatrix, chars = generateWaterMark(img_arry.shape)
 
-    #print("嵌入量：%d" %(embedding_lsbMatrix.size))
-    # print("嵌入值："+chars)
+        #print("嵌入量：%d" %(embedding_lsbMatrix.size))
+        # print("嵌入值："+chars)
         encode_LSB_img = encodeLSB(
             embedding_lsbMatrix,
             img_arry)
