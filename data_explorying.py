@@ -5,15 +5,37 @@ from pandas.api.types import is_numeric_dtype
 from pandas.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 
+
+data = pd.read_csv("iris.data", header=None)  # header 不把第一行做为列属性
+data.columns = ['sepal length', 'sepal width',
+                'petal length', 'petal width', 'class']
+# print(data.head())
+cla = data['class'].values
+# print(cla)
+data['Class'] = pd.Series(cla)
+data.boxplot(by='Class', figsize=(12, 12))  # ,ax=axes[0]
+c_cla = []
+for da in cla:
+    if da == 'Iris-setosa':
+        c_cla.append('red')
+    elif da == 'Iris-versicolor':
+        c_cla.append('blue')
+    else:
+        c_cla.append('green')
+# print(c_cla)
+scatter_matrix(data, label=cla, c=c_cla, diagonal='kde', figsize=(12, 12))
+plt.text(0, 0, 'Iris-setosa', c='red', ha='center', va='center')
+plt.text(1, 0, 'Iris-versicolor', c='blue', ha='center', va='center')
+plt.text(2, 0, 'Iris-virginica', c='green', ha='center', va='center')
+
+#axes[1].legend(ncol=3, loc='lower left', fontsize='small')
+
+plt.show()
 '''
 oneDim = np.array([1.0,2,3,4,5])
 twoDim = np.array([[1,2],[3,4],[5,6],[7,8]]) 
 arrFromTuple = np.array([(1,'a',3.0),(2,'b',3.5)])
 '''
-
-data=pd.read_csv("iris.data",header=None) #header 不把第一行做为列属性
-data.columns=['sepal length','sepal width','petal length','petal width','class']
-#print(data.head())
 '''
 for col in data.columns:
     if is_numeric_dtype(data[col]):
@@ -46,45 +68,23 @@ plt.title("Simple Plot")
 plt.legend()
 '''
 
-#plt.figure(figsize=(12,9))
+# plt.figure(figsize=(12,9))
 '''
 plt.subplot(131)
 data['sepal length'].hist(bins=8)
 '''
 
-#fig,axes=plt.subplots(1,2)
+# fig,axes=plt.subplots(1,2)
 
-#data.boxplot()
-#data.plot(kind='box',subplots=True,layout=(3,4),sharex=True,sharey=True)
-cla=data['class'].values
-#print(cla)
-data['Class']=pd.Series(cla)
-data.boxplot(by='Class',figsize=(12,12))#,ax=axes[0]
+# data.boxplot()
+# data.plot(kind='box',subplots=True,layout=(3,4),sharex=True,sharey=True)
 '''plt.subplot(133)
 
 plt.scatter(x="sepal length",y="petal length",data=data)
 plt.xlabel("sepal length")
 plt.ylabel("pepal length")
 '''
-#plt.show()
-
-c_cla=[]
-for da in cla:
-    if da=='Iris-setosa':
-        c_cla.append('red')
-    elif da=='Iris-versicolor':
-        c_cla.append('blue')
-    else:
-        c_cla.append('green')
-#print(c_cla)
-scatter_matrix(data,label=cla,c=c_cla,diagonal='kde',figsize=(12,12))
-plt.text(0,0,'Iris-setosa',c='red',ha='center',va='center')
-plt.text(1,0,'Iris-versicolor',c='blue',ha='center',va='center')
-plt.text(2,0,'Iris-virginica',c='green',ha='center',va='center')
-
-#axes[1].legend(ncol=3, loc='lower left', fontsize='small')
-
-plt.show()
+# plt.show()
 
 
 '''
